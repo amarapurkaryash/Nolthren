@@ -204,9 +204,38 @@ const AboutPage: React.FC = () => {
                     </ul>
                     <div className="pt-4 border-t border-gray-200 dark:border-neutral-700">
                         <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">License & Attribution</h3>
-                        <p className="mt-2">
-                            Nolthren is released under the MIT License. You are free to use, modify, and distribute the code. If you use this idea or a significant portion of this code in your own projects, we kindly request that you provide attribution.
+                         <p className="mt-2">
+                            Nolthren is released under the <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-700 hover:underline dark:text-violet-400 dark:hover:text-violet-300">Creative Commons Attribution–NonCommercial 4.0 (CC BY-NC 4.0)</a> license.
                         </p>
+                        <div className="mt-4 space-y-4">
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center ring-1 ring-inset ring-green-600/20 dark:ring-green-500/30">
+                                    <span className="font-bold text-sm text-green-700 dark:text-green-300">✓</span>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-100">Use, Modify, Share</p>
+                                    <p className="text-gray-600 dark:text-gray-400">You are free to use, modify, and share the code.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center ring-1 ring-inset ring-yellow-600/20 dark:ring-yellow-500/30">
+                                    <span className="font-bold text-sm text-yellow-700 dark:text-yellow-300">!</span>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-100">Must Credit</p>
+                                    <p className="text-gray-600 dark:text-gray-400">You must provide attribution and credit the original project.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center ring-1 ring-inset ring-red-600/20 dark:ring-red-500/30">
+                                    <span className="font-bold text-sm text-red-700 dark:text-red-300">×</span>
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-800 dark:text-gray-100">Non-Commercial</p>
+                                    <p className="text-gray-600 dark:text-gray-400">You cannot use it for commercial purposes (no selling, no paid services, no closed-source use).</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
