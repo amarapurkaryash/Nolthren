@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none'%3E%3Cpath d='M16 52V12L48 52V12' stroke='%236b7280' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nolthren: AI GitHub README Generator</title>
+    <script>
+      // Prevents FOUC by applying theme before page render
+      (function() {
+        try {
+          const theme = localStorage.getItem('nolthren_theme') || 'light'; // Default to light theme
+          const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          
+          if (theme === 'dark' || (theme === 'system' && isSystemDark)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+          console.warn('Could not set initial theme from localStorage.', e);
+        }
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
+      }
+    </script>
+    <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@19.1.1/",
+    "react/": "https://esm.sh/react@19.1.1/",
+    "react": "https://esm.sh/react@19.1.1",
+    "@google/genai": "https://esm.sh/@google/genai@1.17.0",
+    "marked": "https://esm.sh/marked@13.0.2",
+    "dompurify": "https://esm.sh/dompurify@3.1.6",
+    "uuid": "https://esm.sh/uuid@11.1.0",
+    "lottie-react": "https://esm.sh/lottie-react@2.4.1",
+    "turndown": "https://esm.sh/turndown@7.2.0"
+  }
+}
+</script>
+    <style>
+      /* Enhanced Prose styles for README preview, inspired by GitHub's aesthetic */
+      .prose {
+        color: #24292f;
+        line-height: 1.6;
+        /* More robust word breaking for long strings */
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+      .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+      .prose h1 { 
+        font-size: 2em;
+        padding-bottom: 0.3em; 
+        border-bottom: 1px solid #d0d7de;
+      }
+      .prose h2 { 
+        font-size: 1.5em;
+        padding-bottom: 0.3em;
+        border-bottom: 1px solid #d0d7de;
+      }
+      .prose h3 { font-size: 1.25em; }
+      .prose p { margin-bottom: 16px; }
+      .prose ul, .prose ol { 
+        padding-left: 2em; 
+        margin-bottom: 16px; 
+      }
+      .prose ul { list-style-type: disc; }
+      .prose ol { list-style-type: decimal; }
+      .prose li > ul, .prose li > ol { margin-top: 0; }
+      .prose li { margin-bottom: 0.25em; }
+      .prose a { 
+        color: #0969da; /* More GitHub-like link color */
+        text-decoration: none; 
+        /* Aggressively break long URLs to prevent overflow */
+        word-break: break-all;
+      }
+      .prose a:hover { text-decoration: underline; }
+      .prose a code { color: inherit; } /* Ensure code in links inherits color */
+      
+      /* Code block container: enables horizontal scrolling */
+      .prose pre {
+        background-color: #f6f8fa;
+        border: 1px solid #d0d7de;
+        padding: 16px;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-bottom: 16px;
+        line-height: 1.45;
+        font-size: 85%;
+      }
+
+      /* General styling for all code elements */
+      .prose code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      
+      /* Code inside a pre block: PREVENTS wrapping, allows horizontal scroll */
+      .prose pre code {
+        display: inline;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+        line-height: inherit;
+        word-wrap: normal; /* Prevents wrapping */
+        word-break: normal; /* Explicitly override parent styles to prevent breaking */
+        background-color: transparent;
+        border: 0;
+        font-size: 100%; /* Relative to parent pre */
+        white-space: pre; /* Preserves whitespace and disables wrapping */
+        color: inherit;
+      }
+      
+      /* Inline code styling */
+      .prose :not(pre) > code {
+        background-color: rgba(175,184,193,0.2);
+        color: #24292f;
+        padding: 0.2em 0.4em;
+        margin: 0;
+        font-size: 85%;
+        border-radius: 6px;
+      }
+
+      .prose blockquote { 
+        border-left: 4px solid #d0d7de; 
+        padding: 0 1em; 
+        margin: 0 0 16px 0;
+        color: #57606a; 
+      }
+      /* Makes tables scrollable horizontally */
+      .prose table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-bottom: 16px;
+        display: block;
+        overflow-x: auto;
+      }
+      .prose th, .prose td { 
+        border: 1px solid #d0d7de; 
+        padding: 6px 13px; 
+      }
+      .prose th { font-weight: 600; }
+      .prose tr:nth-child(2n) { background-color: #f6f8fa; }
+      .prose img { max-width: 100%; height: auto; }
+
+      /* Badges and Contributors section specific styles */
+      .prose .gemini-badges {
+        margin-bottom: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .prose .gemini-badges img { margin: 0; }
+      
+      .prose .gemini-contributors, .prose .gemini-sponsors { 
+        display: flex; 
+        flex-wrap: wrap; 
+        align-items: center; 
+        gap: 0.5rem; /* Space out avatars without overlap */
+      }
+      .prose .gemini-contributors a, .prose .gemini-sponsors a { 
+        display: block; 
+        width: 48px; 
+        height: 48px;
+        border-radius: 9999px; /* Make the link circular */
+        overflow: hidden; 
+        border: 2px solid white;
+        transition: transform 0.2s ease-in-out;
+      }
+      .prose .gemini-contributors a:hover, .prose .gemini-sponsors a:hover {
+        transform: translateY(-4px);
+      }
+      .prose .gemini-contributors img, .prose .gemini-sponsors img { 
+        width: 100%; 
+        height: 100%;
+        display: block;
+      }
+
+      /* Dark mode overrides for custom styles */
+      .dark .prose { color: #c9d1d9; /* GitHub dark default text */ }
+      .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4, .dark .prose h5, .dark .prose h6 { color: #f0f6fc; /* GitHub dark heading */ }
+      .dark .prose h1, .dark .prose h2 { border-bottom-color: #21262d; /* GitHub dark border */ }
+      .dark .prose a { color: #58a6ff; /* GitHub dark link */ }
+      .dark .prose pre { background-color: #161b22; border-color: #30363d; }
+      .dark .prose :not(pre) > code { background-color: rgba(110, 118, 129, 0.4); color: #c9d1d9; }
+      .dark .prose blockquote { border-left-color: #30363d; color: #8b949e; }
+      .dark .prose th, .dark .prose td { border-color: #30363d; }
+      .dark .prose tr:nth-child(2n) { background-color: #161b22; }
+      .dark .prose .gemini-contributors a, .dark .prose .gemini-sponsors a { border-color: #0d1117; /* GitHub dark background */ }
+
+      /* Sidebar visibility toggle switch */
+      .toggle-switch { position: relative; display: inline-block; width: 34px; height: 20px; }
+      .toggle-switch input { opacity: 0; width: 0; height: 0; }
+      .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+      .toggle-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+      input:checked + .toggle-slider { background-color: #4b5563; /* gray-600 */ }
+      input:focus + .toggle-slider { box-shadow: 0 0 1px #4b5563; }
+      input:checked + .toggle-slider:before { transform: translateX(14px); }
+      input:disabled + .toggle-slider { background-color: #e5e7eb; cursor: not-allowed; }
+
+      .dark .toggle-slider { background-color: #404040; /* neutral-700 */ }
+      .dark input:checked + .toggle-slider { background-color: #8b5cf6; /* violet-500 */ }
+      .dark input:disabled + .toggle-slider { background-color: #262626; /* neutral-800 */ }
+
+
+      /* Drag and Drop styles */
+      .section-item.dragging { opacity: 0.5; background-color: #f3f4f6; }
+      .section-item .drag-handle { cursor: grab; }
+      .section-item.dragging .drag-handle { cursor: grabbing; }
+      .drag-over { border-top: 2px solid #4b5563; }
+
+      .dark .section-item.dragging { background-color: #171717; /* neutral-900 */ }
+      .dark .drag-over { border-top-color: #8b5cf6; /* violet-500 */ }
+      
+      /* Sticky sidebar */
+      .sidebar-sticky { position: -webkit-sticky; position: sticky; top: 6rem; align-self: start; }
+
+      /* Progress Loader styles */
+      .progress-segment { height: 100%; background-color: #e5e7eb; border-radius: 9999px; transition: background-color 0.4s ease; }
+      .progress-segment--completed { background-color: #10b981; animation: glow 1.5s infinite alternate; }
+      .progress-segment--in-progress { background-color: #4b5563; background-image: linear-gradient(90deg, rgba(75, 85, 99, 0.6) 0%, #4b5563 50%, rgba(75, 85, 99, 0.6) 100%); background-size: 200% 100%; animation: progress-animation 1.5s linear infinite; }
+
+      .dark .progress-segment { background-color: #262626; /* neutral-800 */ }
+      .dark .progress-segment--completed { background-color: #10b981; }
+      .dark .progress-segment--in-progress { background-color: #7c3aed; background-image: linear-gradient(90deg, rgba(124, 58, 237, 0.6) 0%, #7c3aed 50%, rgba(124, 58, 237, 0.6) 100%); }
+
+      @keyframes progress-animation { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      @keyframes glow { from { box-shadow: 0 0 2px #10b981; } to { box-shadow: 0 0 8px #10b981, 0 0 12px #34d399; } }
+
+      /* Thank you toast animation */
+      @keyframes slide-up-fade-in {
+        from {
+          opacity: 0;
+          transform: translate(-50%, 20px);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+      }
+      .animate-slide-up-fade-in {
+        animation: slide-up-fade-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+
+      /* Parallax Background Elements */
+      .parallax-bg {
+        position: absolute;
+        border-radius: 9999px;
+        z-index: -1;
+        transition: transform 0.1s linear;
+      }
+
+      /* Scroll Animation */
+      .use-scroll-animation { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.95); 
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+      }
+      .use-scroll-animation.visible { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+      }
+
+      /* Full-page scrolling on Home */
+      .body-home-view {
+        overflow: hidden; /* Prevent body scrollbar when home is active */
+      }
+      .fullpage-scroll-container {
+        scroll-snap-type: y mandatory;
+        overflow-y: scroll;
+        height: 100vh;
+        width: 100vw;
+        position: absolute;
+        top: 0;
+        left: 0;
+        scroll-behavior: smooth;
+      }
+      .fullpage-section {
+        scroll-snap-align: start;
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        padding: 2rem;
+        text-align: center;
+        overflow: hidden;
+      }
+      .scroll-down-arrow {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        animation: bounce 2.5s infinite;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-20px);
+        }
+        60% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* Blinking cursor for code animation */
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+      .animate-blink {
+        animation: blink 1s step-end infinite;
+      }
+
+      /* Bar Loader Animation */
+      .bar-loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        height: 80px;
+      }
+      .bar-loader-bar {
+        width: 12px;
+        height: 100%;
+        background-color: #4b5563; /* gray-600 */
+        border-radius: 4px;
+        animation: bar-wave 1.2s infinite ease-in-out;
+      }
+      .dark .bar-loader-bar {
+        background-color: #8b5cf6; /* violet-500 */
+      }
+      .bar-loader-bar:nth-child(1) { animation-delay: -0.4s; }
+      .bar-loader-bar:nth-child(2) { animation-delay: -0.3s; }
+      .bar-loader-bar:nth-child(3) { animation-delay: -0.2s; }
+      .bar-loader-bar:nth-child(4) { animation-delay: -0.1s; }
+      .bar-loader-bar:nth-child(5) { animation-delay: 0s; }
+
+      @keyframes bar-wave {
+        0%, 40%, 100% {
+          transform: scaleY(0.4);
+          opacity: 0.5;
+        }
+        20% {
+          transform: scaleY(1.0);
+          opacity: 1;
+        }
+      }
+
+      /* Hide scrollbar for an element */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+
+      /* Animation for code editor appearance */
+      @keyframes fade-in-zoom {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+      }
+
+      /* Tooltip animation */
+      .tooltip-content {
+        animation: tooltip-fade-in 0.15s ease-out;
+      }
+      @keyframes tooltip-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+    </style>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-50 dark:bg-neutral-950">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

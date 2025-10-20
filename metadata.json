@@ -1,0 +1,5 @@
+{
+  "name": "Nolthren",
+  "description": "Nolthren is an application that generates a professional README.md file for a given GitHub repository link using AI. It provides a clean, user-friendly interface to input a repository URL and get a well-structured README in seconds.",
+  "requestFramePermissions": []
+}
